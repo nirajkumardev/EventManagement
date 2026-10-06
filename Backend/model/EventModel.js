@@ -33,13 +33,17 @@ const EventModel = mongoose.Schema({
     type: Number,
     required: true,
   },
+  price:{
+    type:Number,
+    required: true,
+  },
   availableSeats: {
     type: Number,
     required: true,
   },
   createdBy:{
     type: mongoose.Schema.Types.ObjectId,
-     ref: 'userModel',
+     ref: 'user',
   },
 
 },{ timestamps: true }

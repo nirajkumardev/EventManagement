@@ -10,6 +10,7 @@ const mongoose=require("mongoose");
 // local module
 const authRoutes=require("./routes/authroutes");
 const EventRoute=require("./routes/eventRoute");
+const BookingRoute=require("./routes/bookingroutes");
 
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes 
 app.use('/api/auth',authRoutes);
 app.use('/api/event', EventRoute);
+app.use('/api/booking',BookingRoute);
 
 
 mongoose.connect(process.env.MONGODB_URL)
