@@ -8,7 +8,8 @@ const dotenv=require('dotenv');
 const mongoose=require("mongoose");
 
 // local module
-const authRoutes=require("./routes/authroutes")
+const authRoutes=require("./routes/authroutes");
+const EventRoute=require("./routes/eventRoute");
 
 
 dotenv.config();
@@ -18,7 +19,8 @@ app.use(cors());
 app.use(express.json());
 
 // Routes 
-app.use('/api/auth',authRoutes); 
+app.use('/api/auth',authRoutes);
+app.use('/api/event', EventRoute);
 
 
 mongoose.connect(process.env.MONGODB_URL)
@@ -28,7 +30,12 @@ mongoose.connect(process.env.MONGODB_URL)
   console.log("The Data Base Error come", error);
 });
 
-const PORT=process.env.PORT || 5000;
-app.listen(PORT,()=>{
- console.log(`The server is running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, "127.0.0.1", () => {
+    console.log(`The server is running on http://127.0.0.1:${PORT}`);
+});
+
+server.on("error", (error) => {
+    console.log("SERVER ERROR:", error);
 });

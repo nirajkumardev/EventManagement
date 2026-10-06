@@ -1,16 +1,16 @@
 const mongoose=require("mongoose");
 
 const userSchema=mongoose.Schema({
-  firstName :{type : String, require :true},
+  firstname :{type : String, required :true},
   lastname :{type: String},
   email :{
     type: String,
-    require: true,
+    required: true,
     unique :[true, "Email is Already Rejesterd Go to Login Page"],
   },
-  role:{type: String, require : true, enum:['user','admin'], default:'user'},
-  password:{typer : String, require: true},
+  role:{type: String, required : true, enum:['user','admin'], default:'user'},
+  password:{type : String, required: true},
   isVerfyed:{type : Boolean, default : false},
 });
 
-mongoose.exports=mongoose.model("user", userSchema);
+module.exports=mongoose.model("user", userSchema);

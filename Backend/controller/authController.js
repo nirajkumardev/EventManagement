@@ -22,7 +22,7 @@ exports.registeruser=async (req , res, next)=>{
   const hashpassword= await bcrypt.hash(password,salt);
 
   try{
-    const user=await usermodel.create({firstname, lastname, hashpassword, role :'user',isVerfyed: false});
+    const user=await usermodel.create({firstname, lastname,email, password : hashpassword, role :'user',isVerfyed: false});
     
     const otp=Math.floor(100000+Math.random()*900000).toString();
     await OtpModel.create({email,otp, action :'account_veryfication'});
@@ -34,7 +34,7 @@ exports.registeruser=async (req , res, next)=>{
 
   }
   catch(error){
-    res.status(400).json({error: error.message0});
+    res.status(400).json({error: error.message});
   }
 
 };
@@ -47,7 +47,7 @@ exports.loginUser=async (req, res, next)=>{
   if(!user){
     return res.status(400).json({error: `The user Does Not Exitst`});
   }
-  const isMatchpassword=await bcrypt.compare(user.password, password);
+  const isMatchpassword=await bcrypt.compare(password, user.password);
   if(!isMatchpassword){
     return res.status(400).json({error: `Your Password is Incorrect`});
   }
@@ -69,4 +69,26 @@ exports.loginUser=async (req, res, next)=>{
     token:  generateToken(user._id, user.role),
   });
   
+};
+
+
+exports.verifyOtp=async (req, res, next)=>{
+  const { email, otp}=req.body;
+  const otpRecord=await OtpModel.findOne({email, otp, action : 'account_veryfication'});
+  if(!otpRecord){
+   return  res.status(400).json({error: "Otp invalid or Expire"})
+  }
+
+  const user=await usermodel.findOneAndUpdate({email},{isVerfyed : true});
+  await OtpModel.deleteMany({email, action : 'account_veryfication'});
+  res.json({
+    message: "Account verfied Sussfully. You Can now Login",
+    _id: user._id,
+    name: `${user.firstname} ${user.lastname}`,
+    email : user.email,
+    role : user.role,
+    token : generateToken(user._id, user.role),
+  });
+
+
 }

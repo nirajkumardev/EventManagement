@@ -3,16 +3,16 @@ const { default: mongoose } = require("mongoose");
 const otpSchema=new mongoose.Schema({
   email:{
     type: String,
-    require: true,
+    required: true,
   },
   otp:{
     type: String,
-    require : true,
+    required : true,
   },
   action:{
     type : String,
     enum :["account_veryfication","event_booking"],
-    require: true,
+    required: true,
   },
   createdAt:{
     type : Date,
