@@ -1,5 +1,5 @@
-const router=express.router();
 const express=require("express");
+const router=express.Router();
 const {protect, admin}=require("../middleware/middlewareController");
 const {getEventList,getEventById, addEvent, delteEvent,updateEvent}=require("../controller/eventController");
 
