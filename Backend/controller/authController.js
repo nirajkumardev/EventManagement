@@ -11,7 +11,7 @@ const generateToken=(id,role)=>{
 
 
 exports.registeruser=async (req , res, next)=>{
-  const {firstname,lastname,email,password}=req.body;
+  const {firstname,email,password}=req.body;
   const userExist=await usermodel.findOne({email});
   if(userExist)
   {

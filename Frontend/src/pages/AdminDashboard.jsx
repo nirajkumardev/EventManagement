@@ -26,8 +26,8 @@ const AdminDashboard = () => {
     const fetchData = async () => {
         try {
             const [eventsRes, bookingsRes] = await Promise.all([
-                api.get('/events'),
-                api.get('/bookings/my') // Admin gets all bookings
+                api.get('/event/'),
+                api.get('/event/my') // Admin gets all bookings
             ]);
             setEvents(eventsRes.data);
             setBookings(bookingsRes.data);
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
     const handleCreateEvent = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/events', formData);
+            await api.post('/event/addEvent', formData);
             setShowEventForm(false);
             setFormData({ title: '', description: '', date: '', location: '', category: '', totalSeats: '', ticketPrice: '', image: '' });
             fetchData();
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
     const handleDeleteEvent = async (id) => {
         if (window.confirm('Are you sure you want to delete this event?')) {
             try {
-                await api.delete(`/events/${id}`);
+                await api.delete(`/event/delete/${id}`);
                 fetchData();
             } catch (error) {
                 alert('Error deleting event');

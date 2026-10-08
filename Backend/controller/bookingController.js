@@ -1,10 +1,9 @@
 const BookingModel = require("../model/BookingsModel");
 const OtpModel = require("../model/OtpModel");
 const EventModel = require("../model/EventModel");
-const { sendOtpEmail } = require("../utils/email");
-
+const { sendOtpEmail, sendBookingEmail } = require("../utils/email");
 const generatotp = () => {
-  Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 exports.sendotp = async (req, res, next) => {
@@ -14,7 +13,7 @@ exports.sendotp = async (req, res, next) => {
       email: req.user.email,
       action: "event_booking",
     });
-    await OtpModel.create({ email: req.user.email, action: "event_booking" });
+    await OtpModel.create({ email: req.user.email, otp : otp, action: "event_booking" });
     await sendOtpEmail(req.user.email, otp, "event_booking");
     res.json({ message: "Your Otp Send Sussfully" });
   } catch (error) {
@@ -45,10 +44,10 @@ exports.bookingEvent = async (req, res, next) => {
     }
 
     const alreadyBooking = await BookingModel.findOne({
-      email: req.user.email,
+      userId: req.user.id,
       eventId,
     });
-    if (alreadyBooking && existingBooking.status !== "cancelled") {
+    if (alreadyBooking && alreadyBooking.status !== "cancelled") {
       return res.status(400).json({ message: "You Already Book This Evnet " });
     }
 
@@ -77,13 +76,13 @@ exports.confirmEvent = async (req, res, next) => {
   try {
     const { paymentStatus } = req.body;
     const booking = await BookingModel.findById(req.params.id)
-      .populate("UserId")
+      .populate("userId")
       .populate("eventId");
     if (!booking) {
-      res.status(404).json({ message: "Booking not Found" });
+      return res.status(404).json({ message: "Booking not Found" });
     }
     if (booking.status === "confirmed") {
-      res.status(400).json({ message: "Booking is Already confirmed" });
+      return res.status(400).json({ message: "Booking is Already confirmed" });
     }
 
     const event = await EventModel.findById(booking.eventId._id);
@@ -91,7 +90,7 @@ exports.confirmEvent = async (req, res, next) => {
       return res.status(400).json({ message: "No Seat Are Available" });
     }
 
-    booking.status = confirmed;
+    booking.status = "confirmed";
     if (paymentStatus) {
       booking.paymentStatus = paymentStatus;
     }
@@ -128,7 +127,7 @@ exports.DeletemyEvent = async (req, res, next) => {
     }
 
     if (DeleteEvent.userId.toString() !== req.user._id.toString()) {
-      return res.statu(404).json({ message: "Unathorized" });
+      return res.status(404).json({ message: "Unathorized" });
     }
 
     if (DeleteEvent.status === 'cancelled') return res.status(400).json({ message: 'Already cancelled' });
@@ -142,16 +141,16 @@ exports.DeletemyEvent = async (req, res, next) => {
       const event = await EventModel.findById(DeleteEvent.eventId);
       if(event)
       {
-        event.totalSeats += 1;
+        event.availableSeats += 1;
         await event.save();
       }
       
     }
-    await DeleteEvent.remove();
+    await DeleteEvent.deleteOne();
     res.json({ message: "Booking Cancled" });
   } catch (error) {
     res
-      .statu(500)
+      .status(500)
       .json({ message: "Server Error booking Failed", error: error.message });
   }
 };
@@ -160,11 +159,11 @@ exports.myBooking = async (req, res, next) => {
   try {
     const bookings =
       req.user.role === "admin"
-        ? await Booking.find()
+        ? await BookingModel.find()
             .populate("eventId")
             .populate("userId", "name email")
             .sort({ createdAt: -1 })
-        : await Booking.find({ userId: req.user.id })
+        : await BookingModel.find({ userId: req.user.id })
             .populate("eventId")
             .sort({ createdAt: -1 });
     res.json(bookings);

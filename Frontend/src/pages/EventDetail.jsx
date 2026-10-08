@@ -19,7 +19,7 @@ const EventDetail = () => {
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                const { data } = await api.get(`/events/${id}`);
+                const { data } = await api.get(`/event/${id}`);
                 setEvent(data);
             } catch (err) {
                 setError('Failed to load event details.');
@@ -41,19 +41,31 @@ const EventDetail = () => {
 
         try {
             if (!showOTP) {
-                await api.post('/bookings/send-otp');
+                await api.post('/booking/sendotp',{
+                    eventId: event._id,
+                });
                 setShowOTP(true);
                 setSuccessMsg('OTP sent to your email. Please verify to confirm booking.');
             } else {
-                await api.post('/bookings', { eventId: event._id, otp });
+                await api.post('/booking/booking', { eventId: event._id, otp });
                 setSuccessMsg('Booking requested! Awaiting admin confirmation.');
                 setShowOTP(false);
                 // Update local seats count dynamically after booking
                 setEvent({ ...event, availableSeats: event.availableSeats - 1 });
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Booking failed');
-        } finally {
+    console.log("BOOKING ERROR:", err);
+    console.log("STATUS:", err.response?.status);
+    console.log("RESPONSE:", err.response?.data);
+    console.log("BASE URL:", err.config?.baseURL);
+    console.log("REQUEST URL:", err.config?.url);
+
+    setError(
+        err.response?.data?.message ||
+        err.message ||
+        'Booking failed'
+    );
+} finally {
             setBookingLoading(false);
         }
     };
