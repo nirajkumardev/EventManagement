@@ -7,8 +7,8 @@ const {bookingEvent, sendotp, confirmEvent, DeletemyEvent, myBooking}=require(".
 
 router.post("/booking",protect,bookingEvent);
 router.post("/sendotp",protect,sendotp);
-router.put("/:id/confirm", admin,  protect, confirmEvent);
-router.post("/:id",protect, DeletemyEvent);
+router.put("/:id/confirm",  protect,  admin, confirmEvent);
+router.delete("/:id",protect, DeletemyEvent);
 router.get("/my",protect, myBooking);
 
 

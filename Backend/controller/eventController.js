@@ -1,3 +1,4 @@
+const BookingsModel = require("../model/BookingsModel");
 const Eventmoudle=require("../model/EventModel");
 const { events } = require("../model/OtpModel");
 
@@ -91,3 +92,26 @@ exports.updateEvent=async (req, res, next)=>{
   };
 };
 
+
+exports.rejectEvent=async (req, res, next)=>{
+  try{
+    const booking=await BookingsModel.findById(req.params.id);
+    if(!booking){
+      return res.status(404).json({message: "Event not found"});
+    }
+
+    if(booking.status!=="pending")
+    {
+      return res.status(400).json({message:"Only pending booking can be rejected"});
+    }
+
+    
+    booking.status="cancelled";
+    await booking.save();
+    
+    return res.status(200).json({message: "Booking rejected Sussfully",booking});
+  }
+  catch(error){
+    return res.status(500).json({message:"Server Error ", message: error.message});
+  };
+};

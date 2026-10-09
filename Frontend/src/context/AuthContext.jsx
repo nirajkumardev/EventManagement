@@ -33,7 +33,10 @@ export const AuthProvider = ({ children }) => {
             const { data } = await api.post('/auth/register', { firstname: name, email, password });
             return data; // Returns { message, email }
         } catch (error) {
-            throw error.response?.data?.message || 'Registration failed';
+            console.log("Register status:", error.response?.status);
+        console.log("Register response:", error.response?.data);
+        console.log("Register error:", error.message);
+            throw error.response?.data?.message || 'Reg';
         }
     };
 

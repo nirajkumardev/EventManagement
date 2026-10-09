@@ -1,7 +1,7 @@
 const mongoose=require("mongoose");
 
 const BookingModel=mongoose.Schema({
-  UserId:{
+  userId:{
     type: mongoose.Schema.Types.ObjectId,
     ref:"user",
     required: true,

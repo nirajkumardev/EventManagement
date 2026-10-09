@@ -12,7 +12,7 @@ const AdminDashboard = () => {
 
     const [showEventForm, setShowEventForm] = useState(false);
     const [formData, setFormData] = useState({
-        title: '', description: '', date: '', location: '', category: '', totalSeats: '', ticketPrice: '', image: ''
+        title: '', description: '', date: '', location: '', category: '', totalSeats: '', price: '', image: ''
     });
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
         try {
             const [eventsRes, bookingsRes] = await Promise.all([
                 api.get('/event/'),
-                api.get('/event/my') // Admin gets all bookings
+                api.get('/booking/my') // Admin gets all bookings
             ]);
             setEvents(eventsRes.data);
             setBookings(bookingsRes.data);
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
         try {
             await api.post('/event/addEvent', formData);
             setShowEventForm(false);
-            setFormData({ title: '', description: '', date: '', location: '', category: '', totalSeats: '', ticketPrice: '', image: '' });
+            setFormData({ title: '', description: '', date: '', location: '', category: '', totalSeats: '', price: '', image: '' });
             fetchData();
         } catch (error) {
             alert(error.response?.data?.message || 'Error creating event');
@@ -56,14 +56,18 @@ const AdminDashboard = () => {
                 await api.delete(`/event/delete/${id}`);
                 fetchData();
             } catch (error) {
-                alert('Error deleting event');
+                console.log("Delete Error:", error);
+    console.log("Status Code:", error.response?.status);
+    console.log("Backend Message:", error.response?.data);
+
+    alert(error.response?.data?.message || error.message);
             }
         }
     };
 
     const handleConfirmBooking = async (id, paymentStatus) => {
         try {
-            await api.put(`/bookings/${id}/confirm`, { paymentStatus });
+            await api.put(`/booking/${id}/confirm`, { paymentStatus });
             fetchData();
         } catch (error) {
             alert(error.response?.data?.message || 'Error confirming booking');
@@ -73,7 +77,7 @@ const AdminDashboard = () => {
     const handleCancelBooking = async (id) => {
         if (window.confirm('Cancel this user\'s booking request?')) {
             try {
-                await api.delete(`/bookings/${id}`);
+                await api.delete(`/event/reject/${id}`);
                 fetchData();
             } catch (error) {
                 alert(error.response?.data?.message || 'Error cancelling booking');
@@ -132,7 +136,7 @@ const AdminDashboard = () => {
                         <input required type="date" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
                         <input required type="text" placeholder="Location" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
                         <input required type="number" placeholder="Total Seats" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.totalSeats} onChange={e => setFormData({ ...formData, totalSeats: e.target.value })} />
-                        <input required type="number" placeholder="Ticket Price (0 for free)" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.ticketPrice} onChange={e => setFormData({ ...formData, ticketPrice: e.target.value })} />
+                        <input required type="number" placeholder="Ticket Price (0 for free)" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} />
 
                         <div className="md:col-span-2">
                             <input type="text" placeholder="Image URL (Provide any direct link to an image)" className="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-gray-700 outline-none transition" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} />
@@ -194,7 +198,9 @@ const AdminDashboard = () => {
                                         <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100 text-sm">
                                             <p className="text-gray-700 flex items-center gap-2 mb-1">
                                                 <span className="font-bold w-16 text-gray-500 uppercase text-xs">User:</span>
-                                                <span className="font-semibold">{booking.userId?.name}</span>
+                                                <span className="font-semibold"> {booking.userId
+                                                    ? `${booking.userId.firstname || ''}`.trim()
+                                                    : 'Unknown User'}</span>
                                                 <span className="text-gray-400">({booking.userId?.email})</span>
                                             </p>
                                             <p className="text-gray-700 flex items-center gap-2 mb-1">
@@ -203,7 +209,9 @@ const AdminDashboard = () => {
                                             </p>
                                             <p className="text-gray-700 flex items-center gap-2 mb-1">
                                                 <span className="font-bold w-16 text-gray-500 uppercase text-xs">Date:</span>
-                                                <span>{new Date(booking.bookedAt).toLocaleString()}</span>
+                                                <span>{booking.createdAt
+    ? new Date(booking.createdAt).toLocaleString()
+    : 'Date unavailable'}</span>
                                             </p>
                                             {booking.eventId && (
                                                 <p className="text-gray-700 flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
@@ -219,7 +227,7 @@ const AdminDashboard = () => {
                                                 <button onClick={() => handleConfirmBooking(booking._id, 'paid')} className="flex-1 min-w-[120px] bg-green-50 text-green-700 hover:bg-green-600 hover:text-white border border-green-200 text-xs font-bold py-2.5 px-3 rounded-lg shadow-sm transition">
                                                     ✓ Approve as Paid
                                                 </button>
-                                                <button onClick={() => handleConfirmBooking(booking._id, 'not_paid')} className="flex-1 min-w-[120px] bg-gray-50 text-gray-700 hover:bg-gray-800 hover:text-white border border-gray-200 text-xs font-bold py-2.5 px-3 rounded-lg shadow-sm transition">
+                                                <button onClick={() => handleConfirmBooking(booking._id, 'nonpaid')} className="flex-1 min-w-[120px] bg-gray-50 text-gray-700 hover:bg-gray-800 hover:text-white border border-gray-200 text-xs font-bold py-2.5 px-3 rounded-lg shadow-sm transition">
                                                     ✓ Approve Undecided
                                                 </button>
                                                 <button onClick={() => handleCancelBooking(booking._id)} className="w-[80px] bg-red-50 text-red-600 hover:bg-red-500 hover:text-white border border-red-200 text-xs font-bold py-2.5 px-3 rounded-lg transition">

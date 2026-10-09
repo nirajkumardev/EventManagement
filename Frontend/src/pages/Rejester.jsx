@@ -10,6 +10,7 @@ const Register = () => {
     const [showOTP, setShowOTP] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    // const [role, setRole] = useState("user");
 
     const { register, verifyOTP } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -66,6 +67,36 @@ const Register = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
+
+
+                        {/* <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Choose Your Role
+                            </label>
+
+                            <label className="mr-6">
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="user"
+                                    checked={role === "user"}
+                                    onChange={(e) => setRole(e.target.value)}
+                                />
+                                User
+                            </label>
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="admin"
+                                    checked={role === "admin"}
+                                    onChange={(e) => setRole(e.target.value)}
+                                />
+                                Host
+                            </label>
+                        </div> */}
+
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
                             <input

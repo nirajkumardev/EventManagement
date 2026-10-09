@@ -22,7 +22,7 @@ exports.registeruser=async (req , res, next)=>{
   const hashpassword= await bcrypt.hash(password,salt);
 
   try{
-    const user=await usermodel.create({firstname, lastname,email, password : hashpassword, role :'user',isVerfyed: false});
+    const user=await usermodel.create({firstname,email, password : hashpassword, role :'user',isVerfyed: false});
     
     const otp=Math.floor(100000+Math.random()*900000).toString();
     await OtpModel.create({email,otp, action :'account_veryfication'});
@@ -63,7 +63,7 @@ exports.loginUser=async (req, res, next)=>{
   res.json({
     message:"Login Sussfully",
     _id : user._id,
-    name: `${user.firstname} ${user.lastname}`,
+    name: `${user.firstname}`,
     role: user.role,
     email : user.email,
     token:  generateToken(user._id, user.role),

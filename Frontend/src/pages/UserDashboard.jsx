@@ -20,10 +20,19 @@ const UserDashboard = () => {
 
     const fetchBookings = async () => {
         try {
-            const { data } = await api.get('/bookings/my');
+            const { data } = await api.get('/booking/my');
             setBookings(data);
+         setBookings(Array.isArray(data) ? data : []);
         } catch (error) {
-            console.error('Error fetching bookings', error);
+    console.log("Cancel error:", error);
+    console.log("Status:", error.response?.status);
+    console.log("Backend response:", error.response?.data);
+
+    alert(
+        error.response?.data?.message ||
+        error.message ||
+        "Error cancelling booking"
+    );
         } finally {
             setLoading(false);
         }
@@ -32,7 +41,7 @@ const UserDashboard = () => {
     const cancelBooking = async (id) => {
         if (window.confirm('Are you sure you want to cancel this booking request?')) {
             try {
-                await api.delete(`/bookings/${id}`);
+                await api.delete(`/booking/${id}`);
                 fetchBookings();
             } catch (error) {
                 alert(error.response?.data?.message || 'Error cancelling booking');

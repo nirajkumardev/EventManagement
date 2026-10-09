@@ -101,7 +101,7 @@ const Home = () => {
                                     </div>
                                 )}
                                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold shadow-sm">
-                                    {event.ticketPrice === 0 ? <span className="text-green-600">FREE</span> : <span className="text-gray-900">₹{event.ticketPrice}</span>}
+                                    {event.price === 0 ? <span className="text-green-600">FREE</span> : <span className="text-gray-900">₹{event.price}</span>}
                                 </div>
                             </div>
                             <div className="p-6 flex-grow flex flex-col">
